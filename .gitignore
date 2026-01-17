@@ -1,2 +1,10 @@
 .idea
 patient-management.iml
+
+*/mvnw.cmd
+*/mvnw
+*/.gitattributes
+*/.gitignore
+
+
+.DS_Store
