@@ -2,8 +2,8 @@ package com.pm.patient_service.controller;
 
 import com.pm.patient_service.dto.PatientRequestDTO;
 import com.pm.patient_service.dto.PatientResponseDTO;
+import com.pm.patient_service.dto.validators.CreatePatientValidationGroup;
 import com.pm.patient_service.service.PatientService;
-import jakarta.validation.Valid;
 import jakarta.validation.groups.Default;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -30,7 +30,7 @@ public class PatientController {
 
     @PostMapping("/createPatient")
     public ResponseEntity<PatientResponseDTO> createPatient(
-            @Valid
+            @Validated({Default.class, CreatePatientValidationGroup.class})
             @RequestBody PatientRequestDTO patientRequestDTO) {
 
         PatientResponseDTO patientResponseDTO = patientService.createPatient(
