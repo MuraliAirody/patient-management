@@ -226,3 +226,135 @@ Required for unary RPCs.
 - Response is sent back over HTTP/2
 
 - Client receives the response
+
+--- 
+## Billing Service: Docker Image & Container Creation
+
+This section explains how the Billing Service was packaged into a Docker image and then run as a Docker container using terminal commands.
+
+### 1. Prerequisites
+
+- Docker installed and running
+
+- Dockerfile present in the billing-service project directory
+
+- Docker internal network already created
+
+- docker network create internal
+
+### 2. Building the Billing Service Docker Image
+
+- The Billing Service Docker image was created using the Dockerfile located in the billing service project directory.
+
+Navigate to project directory
+```shell
+cd billing-service
+```
+
+Build the image
+```shell
+docker build -t patient-billing:latest .
+```
+Explanation
+
+| Part                        | Description                        |
+| --------------------------- | ---------------------------------- |
+| `docker build`              | Builds a Docker image              |
+| `-t patient-billing:latest` | Image name and tag                 |
+| `.`                         | Current directory as build context |
+
+- **Result:**
+
+- A Docker image named patient-billing:latest is created
+
+- The image contains the compiled Spring Boot application
+
+- No container is started at this stage
+
+Verify:
+
+```shell
+docker images
+```
+### 3. Creating and Running the Billing Service Container
+
+Once the image was built, a container was created and started using the following command:
+
+```shell
+docker run \
+--name billing-service \
+--network internal \
+-p 4001:4001 \
+-p 9001:9001 \
+-d patient-billing:latest
+```
+
+Explanation
+
+| Option                   | Description                         |
+| ------------------------ | ----------------------------------- |
+| `--name billing-service` | Container name                      |
+| `--network internal`     | Connects to internal Docker network |
+| `-p 4001:4001`           | Exposes Billing Service API         |
+| `-p 9001:9001`           | Exposes Actuator / Management port  |
+| `-d`                     | Runs container in background        |
+| `patient-billing:latest` | Image used to create container      |
+
+### 4. Environment Configuration (Database Connectivity)
+
+Environment variables for database connectivity were injected at container runtime, not during image build.
+
+Using .env file (recommended)
+
+.env file placed outside the application source code:
+
+```properties
+
+SPRING_DATASOURCE_URL=jdbc:postgresql://patient-service-db:5432/db
+SPRING_DATASOURCE_USERNAME=admin_user
+SPRING_DATASOURCE_PASSWORD=password
+
+```
+
+- Container recreated with env variables
+- docker stop billing-service
+- docker rm billing-service
+
+```shell
+docker run \
+--name billing-service \
+--network internal \
+-p 4001:4001 \
+-p 9001:9001 \
+--env-file .env \
+-d patient-billing:latest
+```
+
+### 5. How Billing Service Connects to Database
+
+- Both Billing Service and PostgreSQL containers are attached to the same internal Docker network
+
+- Docker provides built-in DNS resolution
+
+- Billing Service connects using the container name patient-service-db
+
+- jdbc:postgresql://patient-service-db:5432/db
+
+**Important Note**
+
+- Port 5432 is the container port
+
+- Host-mapped ports (e.g., 6000) are not used for container-to-container communication
+
+### 6. Verification
+Check running container
+```shell
+   docker ps
+```
+- View logs
+- docker logs billing-service
+
+Verify environment variables
+```shell
+docker exec billing-service printenv | grep SPRING
+```
