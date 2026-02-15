@@ -18,17 +18,17 @@ public class BillingGrpcService {
     BillingGrpcService(
             @Value("${billing.service.address:localhost}") String serverAddress,
             @Value("${billing.service.grpc.port:9001}") int serverPort
-    ){
+    ) {
         log.info("Connecting to Billing Service GRPC service at {}:{}",
                 serverAddress, serverPort);
-        ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(serverAddress,serverPort)
+        ManagedChannel managedChannel = ManagedChannelBuilder.forAddress(serverAddress, serverPort)
                 .usePlaintext().build();
-       blockingStub = BillingServiceGrpc.newBlockingStub(managedChannel);
+        blockingStub = BillingServiceGrpc.newBlockingStub(managedChannel);
     }
 
     public BillingResponse createBillingAccount(String patientId, String name,
                                                 String email) {
-
+        log.info("Creating billing account");
         BillingRequest request = BillingRequest.newBuilder().setPatientId(patientId)
                 .setName(name).setEmail(email).build();
 

@@ -4,9 +4,12 @@ import com.pm.patient_service.dto.PatientRequestDTO;
 import com.pm.patient_service.dto.PatientResponseDTO;
 import com.pm.patient_service.exception.EmailAlreadyExistException;
 import com.pm.patient_service.exception.PatientNotFoundException;
+import com.pm.patient_service.grpc.BillingGrpcService;
 import com.pm.patient_service.mapper.PatientMapper;
 import com.pm.patient_service.model.Patient;
 import com.pm.patient_service.repository.PatientRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,10 +18,14 @@ import java.util.UUID;
 
 @Service
 public class PatientService {
+    private static final Logger log = LoggerFactory.getLogger(PatientService.class);
     private final PatientRepository patientRepository;
+    private final BillingGrpcService billingGrpcService;
 
-    public PatientService(PatientRepository patientRepository){
+    public PatientService(PatientRepository patientRepository,
+                          BillingGrpcService billingGrpcService){
         this.patientRepository = patientRepository;
+        this.billingGrpcService = billingGrpcService;
     }
 
     public List<PatientResponseDTO> getPatients() {
@@ -33,6 +40,10 @@ public class PatientService {
                     patientRequestDTO.getEmail());
         }
         Patient patient = patientRepository.save(PatientMapper.toPatientModel(patientRequestDTO));
+
+        log.info("Calling billing service");
+        billingGrpcService.createBillingAccount(patient.getId().toString()
+                ,patient.getName(), patient.getEmail());
 
         return PatientMapper.toPatientResponseDTO(patient);
     }
