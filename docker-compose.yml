@@ -1,0 +1,29 @@
+services:
+  analytics-service:
+    image: analytics-service:latest
+    build:
+      context: ./analytics-service
+      dockerfile: Dockerfile
+    container_name: analytics-service
+    ports:
+      - "4002:4002"
+    networks:
+      - internal
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+  billing-service:
+    image: billing-service:latest
+    build:
+      context: ./billing-service
+      dockerfile: Dockerfile
+    container_name: billing-service
+    ports:
+      - "4001:4001"
+      - "9001:9001"
+    networks:
+      - internal
+
+networks:
+  internal:
+    external: true
