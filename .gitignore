@@ -8,3 +8,5 @@ patient-management.iml
 
 
 .DS_Store
+
+postgres-data
