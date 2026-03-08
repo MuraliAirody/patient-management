@@ -70,8 +70,8 @@ services:
       context: ./auth-service
       dockerfile: Dockerfile
     container_name: auth-service
-    ports:
-      - "4005:4005"
+#    ports:
+#      - "4005:4005"  #Passing through API GATEWAY
     networks:
       - internal
     environment:
