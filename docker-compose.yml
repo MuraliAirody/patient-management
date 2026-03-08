@@ -34,6 +34,8 @@ services:
       - "4004:4004"
     networks:
       - internal
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:4005
 
   postgres1:
     image: postgres:latest
